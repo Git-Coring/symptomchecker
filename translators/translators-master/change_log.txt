@@ -1,0 +1,163 @@
+1.0.1
+build translate_api on 10,10,2017.
+
+...(history)
+
+2.2.2
+add `proxy`.
+
+2.4.0
+add `youdao`.
+
+2.4.2
+translate.google()
+
+2.4.4
+simple README.rst
+add github homepage
+
+3.0.0
+Due to incompatible code changes made in version 2.4.2, I should not upgrade the minor version number,
+but the major version number. This is a modification. Thanks for Sabrina's reminding.
+
+4.0.0
+`translate_api` --> 'translators'
+Implementing multiple translators is my pursuit, and the existing module name is ambiguous,
+so upgrading the module name is something I have been exploring and thinking about.
+Now the name `translators` is more in line with the meaning of the module itself,
+and now I have no hesitation to upgrade, although the code upgrade and optimization is limited.
+
+upgraded `Warning`.
+
+4.0.1
+fix "translators.google.cn"
+
+4.0.2
+On PYPI, rst --> md.
+
+4.0.4
+print --> raise,warn
+add 'zh-cn'
+del client=t
+
+4.0.6
+raise fixed
+add license in code
+
+4.0.8
+recover youdao()
+
+4.1.0
+add tencent()
+
+4.2.0
+add alibaba()
+use **kwargs
+proxy --> proxies
+make the license more formal
+
+4.2.2
+from_language default 'auto'
+
+4.3.0
+add baidu()
+
+4.3.2
+apis.py (Framing)
+
+4.4.0
+add bing()
+add sogou()
+
+4.4.2
+make 'get_language_url' of alibaba stronger.
+make xpath pattern of bing stronger.
+
+4.4.3
+fix youdao when from_language='auto' and youdao can not recognize which is language of query_text.
+
+4.5.0
+add deepl()
+add TranslatorError
+use magic `sleep_seconds`
+upgrade README.md
+
+4.5.4
+update README.md
+update License
+
+4.5.8
+add `using xxx service backend`
+update README.md with issues
+upgrade debug log
+
+4.5.14
+update README.md
+
+4.6.0
+update README.md
+translator & translate-api upgrade version synchronously.
+
+4.6.10
+make google('emoji') stronger.
+make requests of server region stronger.
+
+4.6.18
+make youdao('sentences length more than 50','errCode40') stronger.
+
+4.6.20
+make tencent(),deepl() stronger with language_map.
+make youdao() stronger with `action` and `lts`.
+speed request with `use_cache`.
+add type hints for function.
+`use_domain` --> `professional_field`
+
+4.7.0
+add yandex()
+`use_cache` deletes if_none(a,b), because b will be computed first, so fix if ... else ...
+update README.md
+
+
+4.7.1
+update README.md
+
+4.7.2
+make deepl() strong with `content-type` of request headers.
+
+4.7.3
+make output strong with '\n'.
+add translate_html().
+
+4.7.5
+upgrade translate_html().
+upgrade baidu() by advice of user `mozbugbox`.
+
+4.7.6
+remove parameter `use_cache`, default cache language_map.
+cache `tkk` in google().
+fixed yandex() with `api_url`
+
+4.7.7
+make `get_language_map` with google stronger.
+
+4.7.8
+update README.md
+
+4.7.9
+make `get_tkk` with google stronger.
+
+4.7.11
+make deepl() stronger.
+
+4.7.12
+add google_v2().
+absolute import.
+
+4.7.13
+fix bugs by replacing execjs.get().eval(...) to json.loads(...) for google_v2
+
+4.7.14
+follow the provider to adjust the strategy for [baidu(), sogou(), youdao()].
+
+4.7.16
+make baidu() stronger with js_txt.

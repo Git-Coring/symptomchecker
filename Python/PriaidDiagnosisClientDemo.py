@@ -17,7 +17,6 @@ class PriaidDiagnosisClientDemo:
 
         self._diagnosisClient = PriaidDiagnosisClient.DiagnosisClient(username, password, authUrl, language, healthUrl)
 
-
     def simulate(self):
         # Load body locations
         selectedLocationID = self._loadBodyLocations()
@@ -56,11 +55,12 @@ class PriaidDiagnosisClientDemo:
             print(json.dumps(data))
             print("+++++++++++++++++++++++++++++++++++++++++++++")
 
-    
+  
     def _loadBodyLocations(self):
         bodyLocations = self._diagnosisClient.loadBodyLocations()
         self._writeRawOutput("loadBodyLocations", bodyLocations)
-        
+
+
         if not bodyLocations:
             raise Exception("Empty body locations results")
         
@@ -68,9 +68,13 @@ class PriaidDiagnosisClientDemo:
         for bodyLocation in bodyLocations:
             print("{0} ({1})".format(bodyLocation["Name"], bodyLocation["ID"]))
 
-        randomLocation = random.choice(bodyLocations)
-        self._writeHeaderMessage("Sublocations for randomly selected location {0}".format(randomLocation["Name"]))
-        return randomLocation["ID"]
+        bodyLct = input()
+        for bodyLCT in bodyLocations:
+            if bodyLct in bodyLCT["Name"]:
+                selectLocation = bodyLCT
+
+        self._writeHeaderMessage("Sublocations for randomly selected location: {0}".format(selectLocation["Name"]))
+        return  selectLocation["ID"]
 
 
     def _loadBodySublocations(self, locId):
@@ -83,9 +87,14 @@ class PriaidDiagnosisClientDemo:
         for bodySublocation in bodySublocations:
             print("{0} ({1})".format(bodySublocation["Name"], bodySublocation["ID"]))
 
-        randomSublocation = random.choice(bodySublocations)
-        self._writeHeaderMessage("Sublocations for randomly selected location {0}".format(randomSublocation["Name"]))
-        return randomSublocation["ID"]
+        bodySlct = input()
+        for bodySLCT in bodySublocations:
+            if bodySlct in bodySLCT["Name"]:
+                selectSubLocation = bodySLCT
+
+
+        self._writeHeaderMessage("Sublocations for randomly selected location {0}".format(selectSubLocation["Name"]))
+        return selectSubLocation["ID"]
 
 
     def _loadSublocationSymptoms(self, subLocId):
@@ -100,13 +109,18 @@ class PriaidDiagnosisClientDemo:
         for symptom in symptoms:
             print(symptom["Name"])
 
-        randomSymptom = random.choice(symptoms)
 
-        self._writeHeaderMessage("Randomly selected symptom: {0}".format(randomSymptom["Name"]))
+        Symptoms = input()
+        for Symptom in symptoms:
+            if Symptoms in Symptom["Name"]:
+                selectSymptoms = Symptom
 
-        self._loadRedFlag(randomSymptom)
+     
+        self._writeHeaderMessage("Randomly selected symptom: {0}".format(selectSymptoms["Name"]))
 
-        selectedSymptoms = [randomSymptom]
+        self._loadRedFlag(selectSymptoms)
+
+        selectedSymptoms = [selectSymptoms]
         return selectedSymptoms
 
 
@@ -158,7 +172,7 @@ class PriaidDiagnosisClientDemo:
             redFlag = self._diagnosisClient.loadRedFlag(selectedSymptom["ID"])
             self._writeRawOutput("loadRedFlag", redFlag)
 
-        self._writeHeaderMessage(redFlag);
+        self._writeHeaderMessage(redFlag)
 
 
     def _loadIssueInfo(self, issueId):

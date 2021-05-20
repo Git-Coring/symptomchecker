@@ -112,9 +112,11 @@ class TranslatorSeverRegion:
     def request_server_region_info(self):
         try:
             ip_address = requests.get('http://httpbin.org/ip').json()['origin']
+            
             try:
-                data = requests.get(f'http://ip-api.com/json/{ip_address}', timeout=10).json()
-                sys.stderr.write(f'Using {data.get("country")} server backend.\n')
+                data = requests.get('http://api.ipapi.com/119.77.123.161?access_key=52eeade59dc847b198c3325ffc1c8c38&format=1', timeout=10).json()
+                #country_name = data.get("country_name")
+                #sys.stderr.write('Using {} server backend.\n'.format(country_name))
                 return data
             except requests.exceptions.Timeout:
                 data = requests.post(
@@ -216,7 +218,7 @@ class GoogleV1(Tse):
             host_html = ss.get(self.host_url, headers=self.host_headers, proxies=proxies).text
             time.sleep(0.01)
 
-        lang_list_str = re.findall("source_code_name:\[(.*?)\],", host_html)[0]
+        lang_list_str = re.findall("source_code_name:\\[(.*?)\\],", host_html)[0]
         lang_list_str = ('['+ lang_list_str + ']').replace('code','"code"').replace('name','"name"')
         lang_list = [x['code'] for x in eval(lang_list_str) if x['code'] != 'auto']
         return {}.fromkeys(lang_list,lang_list)
@@ -386,7 +388,7 @@ class Baidu(Tse):
         et = etree.HTML(host_html)
         js_txt = ''
         for i in range(6):
-            js_re_list = et.xpath(f"/html/body/script[{i}]/text()")
+            js_re_list = et.xpath("/html/body/script[{i}]/text()")
             if js_re_list:
                 if 'langMap' in js_re_list[0]:
                     js_txt = js_re_list[0][20:-111] #TODO
@@ -480,7 +482,7 @@ class Youdao(Tse):
             r.raise_for_status()
         except:
             r = ss.get(self.get_old_sign_url, headers=self.host_headers, proxies=proxies)
-        sign = re.findall('n.md5\("fanyideskweb"\+e\+i\+"(.*?)"\)', r.text)
+        sign = re.findall('n.md5\\("fanyideskweb"\\+e\\+i\\+"(.*?)"\\)', r.text)
         return sign[0] if sign and sign != [''] else "Tbh5E8=q6U3EXe+&L[4c@" #v1.0.31
 
     def get_form(self, query_text, from_language, to_language, sign_key):
@@ -623,15 +625,15 @@ class Alibaba(Tse):
     
     def get_dmtrack_pageid(self, host_response):
         try:
-            e = re.findall("dmtrack_pageid='(\w+)';", host_response.text)[0]
+            e = re.findall("dmtrack_pageid='(\\w+)';", host_response.text)[0]
         except:
             e = ''
         if not e:
             e = host_response.cookies.get_dict().get("cna", "001")
-            e = re.sub(pattern='[^a-z\d]', repl='', string=e.lower())[:16]
+            e = re.sub(pattern='[^a-z\\d]', repl='', string=e.lower())[:16]
         else:
             n, r = e[0:16], e[16:26]
-            i = hex(int(r, 10))[2:] if re.match('^[\-+]?[0-9]+$', r) else r
+            i = hex(int(r, 10))[2:] if re.match('^[\\-+]?[0-9]+$', r) else r
             e = n + i
     
         s = int(time.time() * 1000)
@@ -780,7 +782,7 @@ class Sogou(Tse):
     
     def get_language_map(self, ss, get_language_url, proxies):
         lang_html = ss.get(get_language_url,headers=self.host_headers,proxies=proxies).text
-        lang_list_str = re.findall('"ALL":\[(.*?)\]', lang_html)[0]
+        lang_list_str = re.findall('"ALL":\\[(.*?)\\]', lang_html)[0]
         lang_list = execjs.get().eval('[' + lang_list_str + ']')
         lang_list = [x['lang'] for x in lang_list]
         return {}.fromkeys(lang_list,lang_list)
@@ -991,8 +993,8 @@ class Yandex(Tse):
             from_language, to_language = self.check_language(from_language, to_language, self.language_map, output_zh=self.output_zh)
             from_language = self.detect_language(ss, query_text, self.sid, proxies) if from_language=='auto' else from_language
             params = {
-                'id': f'{self.sid}-{self.query_count}-0',
-                'lang': f'{from_language}-{to_language}',
+                'id': '{self.sid}-{self.query_count}-0',
+                'lang': '{from_language}-{to_language}',
                 'srv': 'tr-text',
                 'reason': 'auto',
                 'format': 'text'
@@ -1041,7 +1043,7 @@ def translate_html(html_text:str, to_language:str='en', translator:Callable='aut
     """
     if translator_params:
         for param in ('query_text', 'to_language','is_detail_result'):
-            assert param not in translator_params, f'{param} should not be in {translator_params}.'
+            assert param not in translator_params, '{param} should not be in {translator_params}.'
 
     translator = google if translator=='auto' else translator
     translator_params.update({'sleep_seconds': 1e-8})

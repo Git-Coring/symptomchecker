@@ -2,8 +2,13 @@ import PriaidDiagnosisClient
 import random
 import config
 import sys
+import os
 import json
-
+import string
+sys.path.append('C:\Capstone\translators')
+sys.path.append('C:\Capstone\speech')
+from translators.apis import *
+from transcribe_streaming_mic import *
 class PriaidDiagnosisClientDemo:
     'Demo class to simulate how to use PriaidDiagnosisClient'
 
@@ -39,7 +44,7 @@ class PriaidDiagnosisClientDemo:
 
         # Load proposed symptoms
         self._loadProposedSymptoms(selectedSymptoms)
-
+    
 
     def _writeHeaderMessage(self, message):
         print("---------------------------------------------")
@@ -65,15 +70,22 @@ class PriaidDiagnosisClientDemo:
             raise Exception("Empty body locations results")
         
         self._writeHeaderMessage("Body locations:")    
+        
         for bodyLocation in bodyLocations:
-            print("{0} ({1})".format(bodyLocation["Name"], bodyLocation["ID"]))
+            BodyName = google(bodyLocation["Name"],to_language='ko')
+            print("{0}".format(BodyName))
+            print("{0}".format(bodyLocation["Name"]))
+            
 
-        bodyLct = input()
+
+        
+        bodyLct = google(main(),to_language='en').lower()  
+
         for bodyLCT in bodyLocations:
-            if bodyLct in bodyLCT["Name"]:
+            if bodyLct in bodyLCT["Name"].lower():
                 selectLocation = bodyLCT
 
-        self._writeHeaderMessage("Sublocations for randomly selected location: {0}".format(selectLocation["Name"]))
+        self._writeHeaderMessage("Selected location: {0}".format(selectLocation["Name"]))
         return  selectLocation["ID"]
 
 
@@ -85,15 +97,18 @@ class PriaidDiagnosisClientDemo:
             raise Exception("Empty body sublocations results")
     
         for bodySublocation in bodySublocations:
-            print("{0} ({1})".format(bodySublocation["Name"], bodySublocation["ID"]))
-
-        bodySlct = input()
+            BodySubName = google(bodySublocation["Name"],to_language='ko')
+            print("{0}".format(BodySubName))
+            print("{0}".format(bodySublocation["Name"]))
+    
+    
+        bodySlct =  google(main(),to_language='en').lower()
+        
         for bodySLCT in bodySublocations:
-            if bodySlct in bodySLCT["Name"]:
+            if bodySlct in bodySLCT["Name"].lower():
                 selectSubLocation = bodySLCT
 
-
-        self._writeHeaderMessage("Sublocations for randomly selected location {0}".format(selectSubLocation["Name"]))
+        self._writeHeaderMessage("Selected Sublocations: {0}".format(selectSubLocation["Name"]))
         return selectSubLocation["ID"]
 
 
@@ -107,16 +122,17 @@ class PriaidDiagnosisClientDemo:
         self._writeHeaderMessage("Body sublocations symptoms:")
 
         for symptom in symptoms:
+            print(google(symptom["Name"], to_language='ko'))
             print(symptom["Name"])
 
-
-        Symptoms = input()
+        # 문장 처리 예외처리 해야됨 
+        Symptoms = google(google(input(),to_language='en').lower()
+        
         for Symptom in symptoms:
-            if Symptoms in Symptom["Name"]:
+            if Symptoms in Symptom["Name"].lower():
                 selectSymptoms = Symptom
 
-     
-        self._writeHeaderMessage("Randomly selected symptom: {0}".format(selectSymptoms["Name"]))
+        self._writeHeaderMessage("Selected symptom: {0}".format(selectSymptoms["Name"]))
 
         self._loadRedFlag(selectSymptoms)
 
@@ -140,7 +156,7 @@ class PriaidDiagnosisClientDemo:
             specialisations = []
             for specialisation in d["Specialisation"]:
                 specialisations.append(specialisation["Name"])
-            print("{0} - {1}% \nICD: {2}{3}\nSpecialisations : {4}\n".format(d["Issue"]["Name"], d["Issue"]["Accuracy"], d["Issue"]["Icd"], d["Issue"]["IcdName"], ",".join(x for x in specialisations)))
+            print("{0} - {1}% \nICD: {2} {3}\nSpecialisations : {4}\n".format(google(d["Issue"]["Name"],to_language='ko'), d["Issue"]["Accuracy"], d["Issue"]["Icd"], d["Issue"]["IcdName"], google(",".join(x for x in specialisations),to_language='ko')))
 
         diagnosisIds = []
         for diagnose in diagnosis:
@@ -152,9 +168,10 @@ class PriaidDiagnosisClientDemo:
     def _loadSpecialisations(self, selectedSymptoms):
         self._writeHeaderMessage("Specialisations")
         selectedSymptomsIds = []
+
         for symptom in selectedSymptoms:
             selectedSymptomsIds.append(symptom["ID"])
-            
+
         specialisations = self._diagnosisClient.loadSpecialisations(selectedSymptomsIds, PriaidDiagnosisClient.Gender.Male, 1988)
         self._writeRawOutput("loadSpecialisations", specialisations)
         
@@ -162,7 +179,7 @@ class PriaidDiagnosisClientDemo:
             self._writeHeaderMessage("No specialisations for symptom {0}".format(selectedSymptoms[0]["Name"]))
                                                                                                      
         for specialisation in specialisations:
-            print("{0} - {1}%".format(specialisation["Name"], specialisation["Accuracy"]))
+            print("{0} - {1}%".format(google(specialisation["Name"],to_language='ko'), specialisation["Accuracy"]))
 
 
     def _loadRedFlag(self, selectedSymptom):
@@ -170,7 +187,7 @@ class PriaidDiagnosisClientDemo:
             
         if selectedSymptom["HasRedFlag"]:
             redFlag = self._diagnosisClient.loadRedFlag(selectedSymptom["ID"])
-            self._writeRawOutput("loadRedFlag", redFlag)
+            self._writeRawOutput("loadRedFlag", google(redFlag,to_language='ko'))
 
         self._writeHeaderMessage(redFlag)
 
@@ -180,14 +197,14 @@ class PriaidDiagnosisClientDemo:
         self._writeRawOutput("issueInfo", issueInfo)
         
         self._writeHeaderMessage("Issue info")
-        print("Name: {0}".format(issueInfo["Name"]).encode("utf-8"))
-        print("Professional Name: {0}".format(issueInfo["ProfName"]).encode("utf-8"))
-        print("Synonyms: {0}".format(issueInfo["Synonyms"]).encode("utf-8"))
-        print("Short Description: {0}".format(issueInfo["DescriptionShort"]).encode("utf-8"))
-        print("Description: {0}".format(issueInfo["Description"]).encode("utf-8"))
-        print("Medical Condition: {0}".format(issueInfo["MedicalCondition"]).encode("utf-8"))
-        print("Treatment Description: {0}".format(issueInfo["TreatmentDescription"]).encode("utf-8"))
-        print("Possible symptoms: {0} \n\n".format(issueInfo["PossibleSymptoms"]).encode("utf-8"))
+        print("Name: {0}".format((google(issueInfo["Name"], to_language='ko'))))
+        print("Professional Name: {0}".format(google(issueInfo["ProfName"], to_language='ko')))
+        print("Synonyms: {0}".format(google(issueInfo["Synonyms"], to_language='ko')))
+        print("Short Description: {0}".format(google(issueInfo["DescriptionShort"], to_language='ko')))
+        print("Description: {0}".format(google(issueInfo["Description"], to_language='ko')))
+        print("Medical Condition: {0}".format(google(issueInfo["MedicalCondition"], to_language='ko')))
+        print("Treatment Description: {0}".format(google(issueInfo["TreatmentDescription"], to_language='ko')))
+        print("Possible symptoms: {0} \n\n".format(google(issueInfo["PossibleSymptoms"], to_language='ko')))
 
 
     def _loadProposedSymptoms(self, selectedSymptoms):

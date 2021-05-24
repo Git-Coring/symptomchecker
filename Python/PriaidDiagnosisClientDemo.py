@@ -21,7 +21,7 @@ class PriaidDiagnosisClientDemo:
         self._printRawOutput = config.pritnRawOutput
 
         self._diagnosisClient = PriaidDiagnosisClient.DiagnosisClient(username, password, authUrl, language, healthUrl)
-
+    # 시뮬 레이터 코드 Client에서 사용 
     def simulate(self):
         # Load body locations
         selectedLocationID = self._loadBodyLocations()
@@ -45,13 +45,13 @@ class PriaidDiagnosisClientDemo:
         # Load proposed symptoms
         self._loadProposedSymptoms(selectedSymptoms)
     
-
+    # 출력 메크로 
     def _writeHeaderMessage(self, message):
         print("---------------------------------------------")
         print(message)
         print("---------------------------------------------")
 
-
+    # 출력 메크로 
     def _writeRawOutput(self, methodName, data):
         print("")
         if self._printRawOutput: 
@@ -60,7 +60,7 @@ class PriaidDiagnosisClientDemo:
             print(json.dumps(data))
             print("+++++++++++++++++++++++++++++++++++++++++++++")
 
-  
+    # 몸의 가장 큰 위치 출력 
     def _loadBodyLocations(self):
         bodyLocations = self._diagnosisClient.loadBodyLocations()
         self._writeRawOutput("loadBodyLocations", bodyLocations)
@@ -73,12 +73,12 @@ class PriaidDiagnosisClientDemo:
         
         for bodyLocation in bodyLocations:
             BodyName = google(bodyLocation["Name"],to_language='ko')
-            print("{0}".format(BodyName))
-            print("{0}".format(bodyLocation["Name"]))
+            print("{0}".format(BodyName)) # 부위 한글 출력 
+            print("{0}".format(bodyLocation["Name"])) # 부위 영어 출력 
             
 
 
-        
+    # 음성 입력 부분 
         bodyLct = google(main(),to_language='en').lower()  
 
         for bodyLCT in bodyLocations:
@@ -86,22 +86,22 @@ class PriaidDiagnosisClientDemo:
                 selectLocation = bodyLCT
 
         self._writeHeaderMessage("Selected location: {0}".format(selectLocation["Name"]))
-        return  selectLocation["ID"]
+        return  selectLocation["ID"] # 아이디 값을 전송 
 
-
+     # 몸의 작은 부위 위치 출력
     def _loadBodySublocations(self, locId):
         bodySublocations = self._diagnosisClient.loadBodySubLocations(locId)
         self._writeRawOutput("loadBodySubLocations", bodySublocations)
-
+    
         if not bodySublocations:
             raise Exception("Empty body sublocations results")
     
         for bodySublocation in bodySublocations:
             BodySubName = google(bodySublocation["Name"],to_language='ko')
-            print("{0}".format(BodySubName))
-            print("{0}".format(bodySublocation["Name"]))
+            print("{0}".format(BodySubName)) # 부위 한글 출력 
+            print("{0}".format(bodySublocation["Name"])) # 부위 한글 출력 
     
-    
+    # 음성 입력 부분
         bodySlct =  google(main(),to_language='en').lower()
         
         for bodySLCT in bodySublocations:
@@ -109,9 +109,9 @@ class PriaidDiagnosisClientDemo:
                 selectSubLocation = bodySLCT
 
         self._writeHeaderMessage("Selected Sublocations: {0}".format(selectSubLocation["Name"]))
-        return selectSubLocation["ID"]
+        return selectSubLocation["ID"] # 아이디 값을 전송 
 
-
+     # 몸의 증상 들 출력
     def _loadSublocationSymptoms(self, subLocId):
         symptoms = self._diagnosisClient.loadSublocationSymptoms(subLocId, PriaidDiagnosisClient.SelectorStatus.Man)
         self._writeRawOutput("loadSublocationSymptoms", symptoms)
@@ -122,11 +122,11 @@ class PriaidDiagnosisClientDemo:
         self._writeHeaderMessage("Body sublocations symptoms:")
 
         for symptom in symptoms:
-            print(google(symptom["Name"], to_language='ko'))
-            print(symptom["Name"])
+            print(google(symptom["Name"], to_language='ko'))# 증상 한글 출력
+            print(symptom["Name"]) # 증상 한글 출력 
 
-        # 문장 처리 예외처리 해야됨 
-        Symptoms = google(google(input(),to_language='en').lower()
+        # 문장 처리 해야됨 # 음성 입력 부분 
+        Symptoms = google(input(),to_language='en').lower()
         
         for Symptom in symptoms:
             if Symptoms in Symptom["Name"].lower():
@@ -138,8 +138,8 @@ class PriaidDiagnosisClientDemo:
 
         selectedSymptoms = [selectSymptoms]
         return selectedSymptoms
-
-
+        
+    # 도출된 증상 출력 
     def _loadDiagnosis(self, selectedSymptoms):
         self._writeHeaderMessage("Diagnosis")
         selectedSymptomsIds = []
@@ -164,7 +164,7 @@ class PriaidDiagnosisClientDemo:
 
         return diagnosisIds
 
-
+    # 도출된 증상 출력 
     def _loadSpecialisations(self, selectedSymptoms):
         self._writeHeaderMessage("Specialisations")
         selectedSymptomsIds = []
@@ -181,7 +181,7 @@ class PriaidDiagnosisClientDemo:
         for specialisation in specialisations:
             print("{0} - {1}%".format(google(specialisation["Name"],to_language='ko'), specialisation["Accuracy"]))
 
-
+    # 도출된 증상 출력
     def _loadRedFlag(self, selectedSymptom):
         redFlag = "Symptom {0} has no red flag".format(selectedSymptom["Name"])
             
@@ -191,7 +191,7 @@ class PriaidDiagnosisClientDemo:
 
         self._writeHeaderMessage(redFlag)
 
-
+    # 도출된 증상 최종 종합 출력
     def _loadIssueInfo(self, issueId):
         issueInfo = self._diagnosisClient.loadIssueInfo(issueId)
         self._writeRawOutput("issueInfo", issueInfo)

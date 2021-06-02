@@ -62,6 +62,7 @@ class PriaidDiagnosisClientDemo:
 
     # 몸의 가장 큰 위치 출력 
     def _loadBodyLocations(self):
+        bodyLocation_lists = []
         bodyLocations = self._diagnosisClient.loadBodyLocations()
         self._writeRawOutput("loadBodyLocations", bodyLocations)
 
@@ -70,49 +71,92 @@ class PriaidDiagnosisClientDemo:
             raise Exception("Empty body locations results")
         
         self._writeHeaderMessage("Body locations:")    
-        
+        i=0
         for bodyLocation in bodyLocations:
-            BodyName = google(bodyLocation["Name"],to_language='ko')
-            print("{0}".format(BodyName)) # 부위 한글 출력 
-            print("{0}".format(bodyLocation["Name"])) # 부위 영어 출력 
-            
-
+            body_lists = bodyLocation["Name"].replace(",","")
+            body_lists = body_lists.replace("&","")
+            bodyLocation_lists.append(google(body_lists.split(),to_language='ko'))
+            print(body_lists)
+            print(bodyLocation_lists[i])
+            i=i+1
 
     # 음성 입력 부분 
-        bodyLct = google(main(),to_language='en').lower()  
-
-        for bodyLCT in bodyLocations:
-            if bodyLct in bodyLCT["Name"].lower():
-                selectLocation = bodyLCT
-
-        self._writeHeaderMessage("Selected location: {0}".format(selectLocation["Name"]))
-        return  selectLocation["ID"] # 아이디 값을 전송 
-
-     # 몸의 작은 부위 위치 출력
-    def _loadBodySublocations(self, locId):
-        bodySublocations = self._diagnosisClient.loadBodySubLocations(locId)
-        self._writeRawOutput("loadBodySubLocations", bodySublocations)
-    
-        if not bodySublocations:
-            raise Exception("Empty body sublocations results")
-    
-        for bodySublocation in bodySublocations:
-            BodySubName = google(bodySublocation["Name"],to_language='ko')
-            print("{0}".format(BodySubName)) # 부위 한글 출력 
-            print("{0}".format(bodySublocation["Name"])) # 부위 한글 출력 
-    
-    # 음성 입력 부분
-        bodySlct =  google(main(),to_language='en').lower()
+        #bodySlct =  google(main(),to_language='ko')
+        bodyLct = input() #타자로 입력 
         
-        for bodySLCT in bodySublocations:
-            if bodySlct in bodySLCT["Name"].lower():
-                selectSubLocation = bodySLCT
+        i=0
+        for bodyLCT in bodyLocation_lists:
+            if bodyLCT.find(bodyLct) != -1:
+                selectLocation = bodyLocations[i]
+                break
+            i = i+1
 
-        self._writeHeaderMessage("Selected Sublocations: {0}".format(selectSubLocation["Name"]))
+               
+        while(True):
+            try:
+                self._writeHeaderMessage("Selected location: {0}".format(selectLocation["Name"]))
+                break
+            except UnboundLocalError:
+                i=0
+                print("Wrong input, Say it again")
+                #bodySlct =  google(main(),to_language='ko')
+                bodyLct = input()
+                for bodyLCT in bodyLocation_lists:
+                    if bodyLCT.find(bodyLct) != -1:
+                        selectLocation = bodyLocations[i]
+                        break
+                    i = i+1
+                
+        return  selectLocation["ID"] # 아이디 값을 전송 
+    
+    # 몸의 작은 부위 위치 출력
+    def _loadBodySublocations(self, locId):
+        bodySubLocation_lists = []
+        bodySubLocations = self._diagnosisClient.loadBodySubLocations(locId)
+        self._writeRawOutput("loadBodySubLocations", bodySubLocations)
+        
+        if not bodySubLocations:
+            raise Exception("Empty body sublocations results")
+        
+        i=0
+        for bodySubLocation in bodySubLocations:
+            body_sub_lists = bodySubLocation["Name"].replace(",","")
+            body_sub_lists = body_sub_lists.replace("&","") 
+            bodySubLocation_lists.append(google(body_sub_lists.split(),to_language='ko'))       
+            print(body_sub_lists)
+            print(bodySubLocation_lists[i]) 
+            i = i+1
+           
+    # 음성 입력 부분
+        #bodySlct =  google(main(),to_language='ko')
+        bodySlct = input() #타자로 입력
+        
+        i=0
+        for bodySLCT in bodySubLocation_lists:
+            if bodySLCT.find(bodySlct) != -1:
+                selectSubLocation = bodySubLocations[i]
+                break
+            i = i+1
+        
+        while(True):   
+            try:
+                self._writeHeaderMessage("Selected Sublocations: {0}".format(selectSubLocation["Name"]))
+                break
+            except UnboundLocalError:
+                i=0
+                print("Wrong input, Say it again")
+                #bodySlct =  google(main(),to_language='ko')
+                bodySlct = input() #타자로 입력 
+                for bodySLCT in bodySubLocation_lists:
+                    if bodySLCT.find(bodySlct) != -1:
+                        selectSubLocation = bodySubLocations[i]
+                        break
+                    i = i+1
         return selectSubLocation["ID"] # 아이디 값을 전송 
 
      # 몸의 증상 들 출력
     def _loadSublocationSymptoms(self, subLocId):
+        symptoms_list = []
         symptoms = self._diagnosisClient.loadSublocationSymptoms(subLocId, PriaidDiagnosisClient.SelectorStatus.Man)
         self._writeRawOutput("loadSublocationSymptoms", symptoms)
 
@@ -124,16 +168,31 @@ class PriaidDiagnosisClientDemo:
         for symptom in symptoms:
             print(google(symptom["Name"], to_language='ko'))# 증상 한글 출력
             print(symptom["Name"]) # 증상 한글 출력 
-
-        # 문장 처리 해야됨 # 음성 입력 부분 
-        Symptoms = google(input(),to_language='en').lower()
+            symptoms_list.append(google(symptom["Name"], to_language='ko').replace(" ",""))
         
-        for Symptom in symptoms:
-            if Symptoms in Symptom["Name"].lower():
-                selectSymptoms = Symptom
-
-        self._writeHeaderMessage("Selected symptom: {0}".format(selectSymptoms["Name"]))
-
+      
+        # 문장 처리 해야됨 # 음성 입력 부분 
+        Symptoms = input().replace(" ","")
+        i=0
+        for Symptom in symptoms_list:
+            if Symptom.find(Symptoms) != -1:
+                selectSymptoms = symptoms[i]
+                break
+            i=i+1
+        
+        while(True):
+            try:
+                self._writeHeaderMessage("Selected symptom: {0}".format(selectSymptoms["Name"]))
+                break
+            except UnboundLocalError:
+                print("Wrong input, Say it again")
+                Symptoms = input().replace(" ","")
+                i=0
+                for Symptom in symptoms_list:
+                    if Symptom.find(Symptoms) != -1:
+                        selectSymptoms = symptoms[i]
+                        break
+                    i=i+1
         self._loadRedFlag(selectSymptoms)
 
         selectedSymptoms = [selectSymptoms]

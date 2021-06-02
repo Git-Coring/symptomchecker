@@ -148,7 +148,7 @@ class GoogleV1(Tse):
         self.api_url = None
         self.tkk = None
         self.query_count = 0
-        self.output_zh = 'zh-CN'
+        self.output_zh = 'en-US'
 
     def _xr(self, a, b):
         size_b = len(b)
@@ -285,7 +285,7 @@ class GoogleV2(Tse):
         self.language_map = None
         self.rpcid = 'MkEWBc'
         self.query_count = 0
-        self.output_zh = 'zh-CN'
+        self.output_zh = 'en-US'
 
     def get_rpc(self, query_text, from_language, to_language):
         param = json.dumps([[str(query_text).strip(), from_language, to_language, True], [1]])

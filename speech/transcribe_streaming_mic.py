@@ -172,12 +172,13 @@ def main():
     # for a list of supported languages.
     language_code = "ko-KR"  # a BCP-47 language tag
 
+    
     client = speech.SpeechClient()
-
+   
     config = speech.types.RecognitionConfig(
         encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=RATE,
-        language_code=language_code
+        language_code=language_code,
     )
 
     
@@ -194,12 +195,9 @@ def main():
         )
 
         responses = client.streaming_recognize(streaming_config, requests)
-
+        
         # Now, put the transcription responses to use.
         text = listen_print_loop(responses)
+
+
         return text
-
-
-#if __name__ == "__main__":
-
-# [END speech_transcribe_streaming_mic]

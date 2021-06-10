@@ -5,6 +5,8 @@ import sys
 import os
 import json
 import string
+
+# import keras 
 sys.path.append('C:\Capstone\translators')
 sys.path.append('C:\Capstone\speech')
 from translators.apis import *
@@ -81,7 +83,7 @@ class PriaidDiagnosisClientDemo:
             i=i+1
 
     # 음성 입력 부분 
-        #bodySlct =  google(main(),to_language='ko')
+        #bodyLct =  google(main(),to_language='ko')
         bodyLct = input() #타자로 입력 
         
         i=0
@@ -171,7 +173,8 @@ class PriaidDiagnosisClientDemo:
             symptoms_list.append(google(symptom["Name"], to_language='ko').replace(" ",""))
         
       
-        # 문장 처리 해야됨 # 음성 입력 부분 
+        # 문장 처리 해야됨 # 음성 입력 부분
+        #Symptoms = main().replace(" ","") 
         Symptoms = input().replace(" ","")
         i=0
         for Symptom in symptoms_list:
@@ -278,11 +281,11 @@ class PriaidDiagnosisClientDemo:
             self._writeHeaderMessage("No proposed symptoms for selected symptom {0}".format(selectedSymptoms[0]["Name"]))
             return
 
-        proposedSymptomsIds = []
-        for proposeSymptom in proposedSymptoms:
-            proposedSymptomsIds.append(proposeSymptom["ID"])
+        #proposedSymptomsIds = []
+        # for proposeSymptom in proposedSymptoms:
+        #     proposedSymptomsIds.append(proposeSymptom["ID"])
             
-        self._writeHeaderMessage("Proposed symptoms: {0}".format(",".join(str(x) for x in proposedSymptomsIds)))
+        # self._writeHeaderMessage("Proposed symptoms: {0}".format(",".join(str(x) for x in proposedSymptomsIds)))
 
 
 diagnosisClientDemo = PriaidDiagnosisClientDemo()
